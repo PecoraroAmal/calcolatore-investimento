@@ -1,5 +1,7 @@
 # Calcolatore di Investimento
 
+https://pecoraroamal.github.io/calcolatore-investimento/
+
 Un'applicazione web per calcolare e confrontare strategie di investimento basate su due opzioni: **Standard** e **Premium**. L'obiettivo è determinare la combinazione ottimale per massimizzare il guadagno finale.
 
 ## Descrizione
