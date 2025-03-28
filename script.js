@@ -4,39 +4,53 @@ const resultsDiv = document.getElementById('results');
 
 // Funzione per formattare i numeri con virgola e migliaia separate da punto
 const formatNumber = (num) => {
-    return num.toFixed(2) // Arrotonda a 2 decimali
-        .replace('.', ',') // Sostituisci il punto con la virgola per i decimali
-        .replace(/\B(?=(\d{3})+(?!\d))/g, '.'); // Aggiungi il punto per le migliaia
+    return num.toFixed(2)
+        .replace('.', ',')
+        .replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 };
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
     loader.classList.add('active');
-    resultsDiv.innerHTML = ''; // Pulisci i risultati precedenti
+    resultsDiv.innerHTML = '';
 
     // Input values
     const months = parseInt(document.getElementById('months').value);
     const initialBalance = parseFloat(document.getElementById('initialBalance').value);
-    const monthlySavings = parseFloat(document.getElementById('monthlySavings').value);
     const renewalMonths = parseInt(document.getElementById('renewalMonths').value);
+    const monthlySavingsInput = document.getElementById('monthlySavings').value.trim();
     const annualRate = parseFloat(document.getElementById('annualRate').value) / 100;
 
+    // Parsing del risparmio mensile
+    let monthlySavingsList;
+    if (monthlySavingsInput.includes(',')) {
+        monthlySavingsList = monthlySavingsInput.split(',').map(v => parseFloat(v.trim()));
+    } else {
+        const singleValue = parseFloat(monthlySavingsInput);
+        monthlySavingsList = Array(renewalMonths).fill(singleValue);
+    }
+
     // Validation
-    if (months % 12 !== 0 || initialBalance < 1000 || initialBalance > 10000000 || monthlySavings < 0 || renewalMonths <= 0 || annualRate < 0) {
-        resultsDiv.innerHTML = '<p>Errore: controlla i valori inseriti.</p>';
+    if (months % 12 !== 0 || months < 12 || initialBalance < 1000 || initialBalance > 10000000 || 
+        renewalMonths < 1 || annualRate < 0 || 
+        monthlySavingsList.some(v => v < 0 || isNaN(v)) || 
+        monthlySavingsList.length !== renewalMonths) {
+        resultsDiv.innerHTML = '<p>Errore: controlla i valori inseriti. Il numero di risparmi mensili deve corrispondere ai mesi per rinnovo.</p>';
         loader.classList.remove('active');
         return;
     }
 
+    // Calcolo del renewalBalance
+    const renewalBalance = monthlySavingsList.reduce((a, b) => a + b, 0);
+
     // Simula un ritardo per mostrare lo spinner
     await new Promise(resolve => setTimeout(resolve, 100));
 
-    const renewalBalance = monthlySavings * renewalMonths;
     const years = Math.ceil(months / 12);
-    const periodsPerYear = 12 / renewalMonths; // Numero di rinnovi all'anno
-    const ratePerPeriodStandard = annualRate / periodsPerYear; // Tasso per periodo Standard
-    const ratePerPeriodPremium = (annualRate + 0.001) / periodsPerYear; // Tasso per periodo Premium (+0.1%)
-    const periodsTotal = Math.floor(months / renewalMonths); // Numero totale di periodi
+    const periodsPerYear = 12 / renewalMonths;
+    const ratePerPeriodStandard = annualRate / periodsPerYear;
+    const ratePerPeriodPremium = (annualRate + 0.001) / periodsPerYear;
+    const periodsTotal = Math.floor(months / renewalMonths);
     const premiumCost = 49.99;
     const taxRate = 0.26;
 
@@ -57,7 +71,8 @@ form.addEventListener('submit', async (e) => {
                 balance -= premiumCost;
             }
         }
-        const finalGain = balance - initialBalance - (renewalBalance * periodsTotal);
+        const totalSavings = renewalBalance * periodsTotal;
+        const finalGain = balance - initialBalance - totalSavings;
         return { combo, finalGain, finalBalance: balance, totalPremiumCost };
     };
 
@@ -78,13 +93,11 @@ form.addEventListener('submit', async (e) => {
         resultsDiv.innerHTML += '<p>Nota: Per mesi > 240, il calcolo è meno preciso.</p>';
     }
 
-    // Sort and select top 10
     results.sort((a, b) => b.finalGain - a.finalGain);
     const top10 = results.slice(0, 10);
     const allZeros = results.find(r => r.combo === '0'.repeat(years));
     const allOnes = results.find(r => r.combo === '1'.repeat(years));
 
-    // Generate output
     const outputHTML = `
         <p>Anni: ${months / 12}</p>
         <p>Mesi: ${months}</p>
@@ -131,7 +144,6 @@ Costo Premium totale    ${formatNumber(allOnes.totalPremiumCost)} €
     `;
     resultsDiv.innerHTML = outputHTML;
 
-    // Save function
     window.saveResults = () => {
         const textContent = `
 Calcolatore di Investimento
