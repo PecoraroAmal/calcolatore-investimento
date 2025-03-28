@@ -10,13 +10,13 @@
 <body>
     <h1>Simulatore di un Conto Deposito</h1>
     <form id="investmentForm">
-        <label>Mesi (divisibile per 12): <input type="number" id="months" step="12" min="12" placeholder="12" required></label>
-        <label>Saldo Iniziale (1000-10000000): <input type="number" id="initialBalance" min="1000" max="10000000" placeholder="1000" required></label>
-        <label>Mesi per Rinnovo: <input type="number" id="renewalMonths" min="1" placeholder="3" required></label>
+        <label>Mesi (divisibile per 12): <input type="number" id="months" step="12" min="12" placeholder="es. 12" required></label>
+        <label>Saldo Iniziale (1000-10000000): <input type="number" id="initialBalance" step="500" min="1000" max="10000000" placeholder="es. 1000" required></label>
+        <label>Mesi per Rinnovo: <input type="number" id="renewalMonths" min="1" placeholder="es. 3" required></label>
         <label>Risparmio Mensile (singolo valore o lista separata da virgole): 
             <input type="text" id="monthlySavings" placeholder="es. 100 o 100, 110, 150" required>
         </label>
-        <label>Tasso Lordo Annuale (%): <input type="number" id="annualRate" step="0.1" min="0.1" placeholder="2,7" required></label>
+        <label>Tasso Lordo Annuale (%): <input type="number" id="annualRate" step="0.1" min="0.1" placeholder="es. 2,7" required></label>
         <button type="submit">Calcola</button>
     </form>
     <div id="loader" class="loader">
