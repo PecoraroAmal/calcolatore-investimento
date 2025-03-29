@@ -34,7 +34,7 @@ L'applicazione calcola i rendimenti per tutte le combinazioni possibili di Stand
 
 1. Accedi all'applicazione tramite il [link](#).
 2. Compila il form con i seguenti parametri:
-   - **Data di Inizio**: Data di apertura del conto (es. 01/01/2025).
+   - **Data di Inizio**: Data di apertura del conto (es. 31/01/2025).
    - **Mesi**: Durata totale dell'investimento, multiplo di 12 (es. 12, 24, 240).
    - **Saldo Iniziale**: Importo iniziale investito, tra 1000 e 10.000.000 €.
    - **Mesi per Rinnovo**: Frequenza di calcolo degli interessi (es. 3 per trimestrale).
@@ -60,7 +60,7 @@ calcolatore-investimento/
 ## Dettagli dei Calcoli
 
 ### 1. Parametri di Input
-- **Data di Inizio**: Determina il girtono, il mese e l'anno di partenza (es. 01/01/20205 → 1° gennaio 2025).
+- **Data di Inizio**: Determina il giorno, il mese e l'anno di partenza (es. 31/01/2025 → 31° gennaio 2025).
 - **Mesi**: Durata totale dell'investimento in mesi, deve essere divisibile per 12 (es. 12).
 - **Saldo Iniziale**: Importo iniziale in euro (es. 5000 €).
 - **Mesi per Rinnovo**: Frequenza con cui vengono calcolati gli interessi e aggiunti i risparmi (es. 3 per trimestrale).
@@ -115,7 +115,7 @@ Ogni combinazione è rappresentata come una stringa binaria lunga quanto il nume
 
 ### Esempio di Calcolo
 **Input**: 
-- Data di Inizio: 01/01/2025
+- Data di Inizio: 31/01/2025
 - Mesi: 12
 - Saldo Iniziale: 5000 €
 - Mesi per Rinnovo: 3
