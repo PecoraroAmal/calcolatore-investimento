@@ -96,7 +96,8 @@ button:hover {
 #results th, #results td {
     border: 1px solid #ddd;
     padding: 8px; /* Ridotto leggermente per risparmiare spazio */
-    text-align: left;
+    text-align: left;    
+    white-space: nowrap;
 }
 
 #results th {
@@ -117,6 +118,7 @@ button:hover {
     #results th, #results td {
         padding: 6px; /* Riduce ulteriormente il padding su schermi piccoli */
         font-size: 14px; /* Riduce leggermente la dimensione del testo */
+        white-space: nowrap;
     }
 }
 
