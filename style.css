@@ -26,7 +26,7 @@ label {
     font-weight: bold;
 }
 
-input{
+input {
     width: 100%;
     padding: 8px;
     border: 1px solid #ddd;
@@ -80,12 +80,12 @@ button:hover {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    margin-bottom: 60px;
+    margin-bottom: 20px;
     overflow-x: auto; /* Permette lo scorrimento su schermi piccoli */
 }
 
-/* Stile per la tabella */
-table {
+/* Stile per la tabella dei risultati */
+#results table {
     width: 90%; /* Evita che la tabella si allarghi troppo */
     max-width: 800px; /* Mantiene una dimensione ottimale */
     margin: 0 auto; /* La centra */
@@ -93,21 +93,15 @@ table {
     margin-top: 20px;
 }
 
-th, td {
+#results th, #results td {
     border: 1px solid #ddd;
     padding: 8px; /* Ridotto leggermente per risparmiare spazio */
     text-align: left;
 }
 
-th {
+#results th {
     background-color: #ecf0f1;
     color: #2c3e50;
-}
-
-/* Stile specifico per la colonna 'Saldo Finale' */
-th.saldo-finale, td.saldo-finale {
-    min-width: 120px; /* Aumenta la larghezza per permettere altri due caratteri */
-    text-align: right;
 }
 
 /* Stile per migliorare la visibilità su mobile */
@@ -116,17 +110,13 @@ th.saldo-finale, td.saldo-finale {
         padding: 10px; /* Riduce il padding del div per risparmiare spazio */
     }
 
-    table {
+    #results table {
         width: 100%;
     }
 
-    th, td {
+    #results th, #results td {
         padding: 6px; /* Riduce ulteriormente il padding su schermi piccoli */
         font-size: 14px; /* Riduce leggermente la dimensione del testo */
-    }
-
-    th.saldo-finale, td.saldo-finale {
-        min-width: 100px; /* Adatta la larghezza della colonna per schermi piccoli */
     }
 }
 
@@ -137,25 +127,97 @@ pre {
     white-space: pre-wrap;
 }
 
-.save-button {
-    background-color: #27ae60;
-    margin-top: 20px;
-    display: block;
+/* Stile per la tabella dei risparmi */
+#savingsTable {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    overflow-x: auto;
+}
+
+#savingsTable table {
     width: 100%;
+    border-collapse: collapse;
 }
 
-.save-button:hover {
-    background-color: #219653;
-}
-
-footer {
+#savingsTable th, #savingsTable td {
+    border: 1px solid #ddd;
+    padding: 8px;
     text-align: center;
-    padding: 10px;
-    background-color: #27ae60;
+}
+
+#savingsTable th {
+    background-color: #ecf0f1;
+    color: #2c3e50;
+}
+
+#savingsTable input {
+    width: 80px;
+    padding: 4px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+#savingsTable input:disabled {
+    background-color: #f0f0f0;
+    color: #888;
+}
+
+#calculateProfits {
+    background-color: #46c02b;
     color: white;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 10px auto;
+    width: 35%;
+    display: block;
+}
+
+#calculateProfits:hover {
+    background-color: #36ef46;
+}
+
+/* Stile per il contenitore dei bottoni di salvataggio */
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+#saveSavings, #saveResultsBtn, #saveAll {
+    background-color: #f39c12;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    flex: 1; /* Fa sì che i bottoni occupino lo stesso spazio */
+    max-width: 200px; /* Limita la larghezza massima per evitare che si allunghino troppo */
+}
+
+#saveSavings:hover, #saveResultsBtn:hover, #saveAll:hover {
+    background-color: #e67e22;
+}
+
+/* Per schermi piccoli, impila i bottoni verticalmente */
+@media (max-width: 600px) {
+    .button-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    #saveSavings, #saveResultsBtn, #saveAll {
+        width: 100%;
+        max-width: none;
+    }
+}
+footer{
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+    color: #888;
 }
