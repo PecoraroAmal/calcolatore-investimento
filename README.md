@@ -74,7 +74,7 @@ calcolatore-investimento/
 - **Tasso di interesse per Periodo Premium**: Tasso di interesse annuo + 0,001 diviso per il numero di periodi per anno (es. (0,05 + 0,001) / 4 = 0,01275).
 - **Numero Totale di Periodi**: Numero totale di rinnovi, calcolato come `Math.floor(Mesi / Mesi per Rinnovo)` (es. 12 / 3 = 4).
 - **Costo Premium**: 49,99 € per ogni anno in cui si sceglie l'opzione Premium.
-- **Tassa sugli Interessi**: 26% degli interessi lordi (0,26).
+- **Tassa sugli Interessi**: 26% degli interessi lordi (quindi 0,26).
 
 ### 3. Logica di Calcolo per una Combinazione
 Ogni combinazione è rappresentata come una stringa binaria lunga quanto il numero di anni (es. "01" per 2 anni: Standard, Premium). Il calcolo segue questi passaggi:
