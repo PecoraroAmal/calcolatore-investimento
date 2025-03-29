@@ -34,31 +34,33 @@ L'applicazione calcola i rendimenti per tutte le combinazioni possibili di Stand
 
 1. Accedi all'applicazione tramite il [link](#).
 2. Compila il form con i seguenti parametri:
-   - **Data di Inizio**: Data di apertura del conto (es. 2025-01-01).
+   - **Data di Inizio**: Data di apertura del conto (es. 01/01/2025).
    - **Mesi**: Durata totale dell'investimento, multiplo di 12 (es. 12, 24, 240).
    - **Saldo Iniziale**: Importo iniziale investito, tra 1000 e 10.000.000 €.
    - **Mesi per Rinnovo**: Frequenza di calcolo degli interessi (es. 3 per trimestrale).
    - **Risparmio Mensile**: Valore singolo (es. 100) o lista di valori pari ai mesi per rinnovo (es. 100, 110, 120 per 3 mesi), applicata ciclicamente.
-   - **Tasso Lordo Annuale**: Percentuale annuale ≥ 0,1% (es. 5 per 5%).
+   - **Tasso Lordo Annuale**: Percentuale annuale ≥ 0,1% (es. 5 per il 5%).
 3. Clicca su **"Genera Tabella"** per visualizzare la tabella dei risparmi mensili.
 4. Modifica i valori nella tabella, se necessario.
 5. Clicca su **"Genera Profitti"** per calcolare i rendimenti.
-6. Usa i pulsanti **"Salva Tabella Risparmi"**, **"Salva Risultati"** o **"Salva Risparmi e Profitti"** per esportare i dati.
+6. Usa i pulsanti **"Salva Tabella Risparmi"**, **"Salva Risultati"** o **"Salva Profitti e Risparmi"** per esportare i dati.
 
 ## Struttura del Progetto
 
 ```
 calcolatore-investimento/
+├── icona.png       # Immagine del sito
 ├── index.html      # Struttura HTML
 ├── style.css       # Stili CSS
 ├── script.js       # Logica JavaScript
+├── LICENSE         # Licenza MIT
 └── README.md       # Documentazione
 ```
 
 ## Dettagli dei Calcoli
 
 ### 1. Parametri di Input
-- **Data di Inizio**: Determina il mese e l'anno di partenza (es. 2025-01-01 → gennaio 2025).
+- **Data di Inizio**: Determina il girtono, il mese e l'anno di partenza (es. 01/01/20205 → 1° gennaio 2025).
 - **Mesi**: Durata totale dell'investimento in mesi, deve essere divisibile per 12 (es. 12).
 - **Saldo Iniziale**: Importo iniziale in euro (es. 5000 €).
 - **Mesi per Rinnovo**: Frequenza con cui vengono calcolati gli interessi e aggiunti i risparmi (es. 3 per trimestrale).
@@ -68,8 +70,8 @@ calcolatore-investimento/
 ### 2. Variabili Derivate
 - **Anni**: Numero di anni dell'investimento, calcolato come `Math.ceil(Mesi / 12)` (es. 12 mesi = 1 anno).
 - **Periodi per Anno**: Numero di rinnovi in un anno, calcolato come `12 / Mesi per Rinnovo` (es. 12 / 3 = 4).
-- **Tasso per Periodo Standard**: Tasso annuo diviso per il numero di periodi per anno (es. 0,05 / 4 = 0,0125).
-- **Tasso per Periodo Premium**: Tasso annuo + 0,001 diviso per il numero di periodi per anno (es. (0,05 + 0,001) / 4 = 0,01275).
+- **Tasso di interesse per Periodo Standard**: Tasso di interesse annuo diviso per il numero di periodi per anno (es. 0,05 / 4 = 0,0125).
+- **Tasso di interesse per Periodo Premium**: Tasso di interesse annuo + 0,001 diviso per il numero di periodi per anno (es. (0,05 + 0,001) / 4 = 0,01275).
 - **Numero Totale di Periodi**: Numero totale di rinnovi, calcolato come `Math.floor(Mesi / Mesi per Rinnovo)` (es. 12 / 3 = 4).
 - **Costo Premium**: 49,99 € per ogni anno in cui si sceglie l'opzione Premium.
 - **Tassa sugli Interessi**: 26% degli interessi lordi (0,26).
@@ -101,7 +103,7 @@ Ogni combinazione è rappresentata come una stringa binaria lunga quanto il nume
 
 ### 4. Generazione delle Combinazioni
 - **Per Mesi ≤ 240**: Calcola tutte le possibili combinazioni binarie (2^Anni). Es. per 2 anni: "00", "01", "10", "11".
-- **Per Mesi > 240**: Calcola solo combinazioni specifiche (es. "000...0" a "111...1" e viceversa) per ridurre il carico computazionale, con un avviso di approssimazione.
+- **Per Mesi > 240**: Calcola solo combinazioni specifiche in cui da una parte trovo tutti "0" e dall'altra tutti "1"(es. "000...0" a "111...1" e viceversa) per ridurre il carico computazionale, è meno preciso.
 
 ### 5. Output
 - **Tutto Standard**: Risultato della combinazione "00...0".
@@ -113,7 +115,7 @@ Ogni combinazione è rappresentata come una stringa binaria lunga quanto il nume
 
 ### Esempio di Calcolo
 **Input**: 
-- Data di Inizio: 2025-01-01
+- Data di Inizio: 01/01/2025
 - Mesi: 12
 - Saldo Iniziale: 5000 €
 - Mesi per Rinnovo: 3
