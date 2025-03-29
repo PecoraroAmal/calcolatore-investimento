@@ -1,94 +1,96 @@
-// Selezione degli elementi DOM necessari per interagire con l'interfaccia
-const form = document.getElementById('investmentForm'); // Form di input
-const loader = document.getElementById('loader'); // Indicatore di caricamento
-const resultsDiv = document.getElementById('results'); // Div per i risultati dei profitti
-const savingsTableDiv = document.getElementById('savingsTable'); // Div per la tabella dei risparmi
-const calculateProfitsBtn = document.getElementById('calculateProfits'); // Pulsante per calcolare i profitti
-const saveSavingsBtn = document.getElementById('saveSavings'); // Pulsante per salvare la tabella dei risparmi
-const saveResultsBtn = document.getElementById('saveResultsBtn'); // Pulsante per salvare i risultati
-const saveAllBtn = document.getElementById('saveAll'); // Pulsante per salvare tutto
+const form = document.getElementById('investmentForm');
+const loader = document.getElementById('loader');
+const resultsDiv = document.getElementById('results');
+const savingsTableDiv = document.getElementById('savingsTable');
+const calculateProfitsBtn = document.getElementById('calculateProfits');
+const saveSavingsBtn = document.getElementById('saveSavings');
+const saveResultsBtn = document.getElementById('saveResultsBtn');
+const saveAllBtn = document.getElementById('saveAll');
 
-// Funzione per formattare i numeri nel formato italiano (es. 1.234,56)
 const formatNumber = (num) => {
-    return num.toFixed(2) // Fissa a 2 decimali
-        .replace('.', ',') // Sostituisce il punto con la virgola
-        .replace(/\B(?=(\d{3})+(?!\d))/g, '.'); // Aggiunge punti come separatori delle migliaia
+    return num.toFixed(2)
+        .replace('.', ',')
+        .replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 };
 
-// Event listener per il submit del form
+// Funzione per calcolare i giorni tra due date
+const getDaysBetween = (startDate, endDate) => {
+    const oneDay = 24 * 60 * 60 * 1000;
+    return Math.round((endDate - startDate) / oneDay);
+};
+
+// Funzione per aggiungere mesi a una data
+const addMonths = (date, months) => {
+    const newDate = new Date(date);
+    newDate.setMonth(newDate.getMonth() + months);
+    return newDate;
+};
+
 form.addEventListener('submit', async (e) => {
-    e.preventDefault(); // Impedisce il ricaricamento della pagina
-    savingsTableDiv.innerHTML = ''; // Pulisce la tabella dei risparmi
-    // Nasconde i pulsanti fino a quando non sono necessari
+    e.preventDefault();
+    savingsTableDiv.innerHTML = '';
     calculateProfitsBtn.style.display = 'none';
     saveSavingsBtn.style.display = 'none';
     saveResultsBtn.style.display = 'none';
     saveAllBtn.style.display = 'none';
 
-    // Raccolta dei valori dal form
-    const startDate = new Date(document.getElementById('startDate').value); // Data di inizio
-    const years = parseInt(document.getElementById('years').value); // Numero di anni inserito dall'utente
-    const months = years * 12; // Conversione degli anni in mesi
-    const initialBalance = parseFloat(document.getElementById('initialBalance').value); // Saldo iniziale
-    const renewalMonths = parseInt(document.getElementById('renewalMonths').value); // Mesi per ogni rinnovo
-    const monthlySavingsInput = document.getElementById('monthlySavings').value.trim(); // Input dei risparmi mensili
-    const annualRate = parseFloat(document.getElementById('annualRate').value) / 100; // Tasso annuo in decimale
+    const startDate = new Date(document.getElementById('startDate').value);
+    const years = parseInt(document.getElementById('years').value);
+    const months = years * 12;
+    const initialBalance = parseFloat(document.getElementById('initialBalance').value);
+    const renewalMonths = parseInt(document.getElementById('renewalMonths').value);
+    const monthlySavingsInput = document.getElementById('monthlySavings').value.trim();
+    const annualRate = parseFloat(document.getElementById('annualRate').value) / 100;
 
-    // Parsing dei risparmi mensili: singolo valore o lista separata da virgole
     let monthlySavingsList;
     if (monthlySavingsInput.includes(',')) {
-        monthlySavingsList = monthlySavingsInput.split(',').map(v => parseFloat(v.trim())); // Lista di valori
+        monthlySavingsList = monthlySavingsInput.split(',').map(v => parseFloat(v.trim()));
     } else {
-        monthlySavingsList = [parseFloat(monthlySavingsInput)]; // Singolo valore
+        monthlySavingsList = [parseFloat(monthlySavingsInput)];
     }
 
-    // Validazione degli input
-    if (years < 1 || // Anni devono essere almeno 1
-        initialBalance < 1000 || initialBalance > 10000000 || // Saldo tra 1000 e 10M
-        renewalMonths < 1 || // Rinnovo deve essere positivo
-        annualRate < 0 || // Tasso non negativo
-        monthlySavingsList.some(v => v < 0 || isNaN(v)) || // Risparmi positivi e validi
-        (monthlySavingsList.length > 1 && monthlySavingsList.length !== renewalMonths)) { // Lista deve corrispondere a renewalMonths
-        savingsTableDiv.innerHTML = '<p>Errore: controlla i valori inseriti. Gli anni devono essere ≥ 1 e il numero di risparmi mensili deve essere 1 o uguale ai mesi per rinnovo.</p>';
-        return; // Esce se la validazione fallisce
+    if (years < 1 || initialBalance < 1000 || initialBalance > 10000000 || 
+        renewalMonths < 1 || annualRate < 0 || 
+        monthlySavingsList.some(v => v < 0 || isNaN(v)) || 
+        (monthlySavingsList.length > 1 && monthlySavingsList.length !== renewalMonths)) {
+        savingsTableDiv.innerHTML = '<p>Errore: controlla i valori inseriti.</p>';
+        return;
     }
 
-    const startYear = startDate.getFullYear(); // Anno iniziale
-    const startMonth = startDate.getMonth(); // Mese iniziale (0-11)
-    const tableHTML = generateSavingsTable(startYear, startMonth, months, renewalMonths, monthlySavingsList); // Genera la tabella
-    savingsTableDiv.innerHTML = tableHTML; // Mostra la tabella
-    calculateProfitsBtn.style.display = 'block'; // Rende visibile il pulsante per calcolare i profitti
-    saveSavingsBtn.style.display = 'block'; // Rende visibile il pulsante per salvare i risparmi
+    const startYear = startDate.getFullYear();
+    const startMonth = startDate.getMonth();
+    const tableHTML = generateSavingsTable(startYear, startMonth, months, renewalMonths, monthlySavingsList);
+    savingsTableDiv.innerHTML = tableHTML;
+    calculateProfitsBtn.style.display = 'block';
+    saveSavingsBtn.style.display = 'block';
 
-    // Associa le funzioni ai pulsanti
-    calculateProfitsBtn.onclick = () => calculateProfits(startYear, startMonth, months, initialBalance, renewalMonths, annualRate);
+    calculateProfitsBtn.onclick = () => calculateProfits(startDate, months, initialBalance, renewalMonths, annualRate);
     saveSavingsBtn.onclick = () => saveSavingsTable(startYear, startMonth, months);
 });
 
-// Funzione per generare la tabella dei risparmi
 function generateSavingsTable(startYear, startMonth, months, renewalMonths, monthlySavingsList) {
-    const endDate = new Date(startYear, startMonth + months, 1); // Data di fine
-    const endYear = endDate.getFullYear(); // Anno finale
-    const years = endYear - startYear + 1; // Numero di anni coperti dalla tabella
+    const endDate = addMonths(new Date(startYear, startMonth, 1), months);
+    const endYear = endDate.getFullYear();
+    const years = endYear - startYear + 1;
 
-    let tableHTML = '<table><thead><tr><th></th>'; // Inizio della tabella HTML
+    let tableHTML = '<table><thead><tr><th></th>';
     for (let y = 0; y < years; y++) {
-        tableHTML += `<th>${startYear + y}</th>`; // Intestazione con gli anni
+        tableHTML += `<th>${startYear + y}</th>`;
     }
     tableHTML += '</tr></thead><tbody>';
 
     const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
-    for (let m = 0; m < 12; m++) { // Per ogni mese dell'anno
-        tableHTML += `<tr><td>${monthNames[m]}</td>`; // Nome del mese
+    for (let m = 0; m < 12; m++) {
+        tableHTML += `<tr><td>${monthNames[m]}</td>`;
         for (let y = 0; y < years; y++) {
             const currentYear = startYear + y;
-            const totalMonth = (currentYear - startYear) * 12 + m - startMonth; // Indice del mese rispetto all'inizio
-            if (totalMonth >= 0 && totalMonth < months) { // Se il mese è entro la durata
-                const isBeforeStart = (y === 0 && m < startMonth); // Controlla se è prima dell'inizio
-                const savingsValue = isBeforeStart ? -1 : monthlySavingsList[totalMonth % monthlySavingsList.length]; // Valore ciclico
+            const totalMonth = (currentYear - startYear) * 12 + m - startMonth;
+            if (totalMonth >= 0 && totalMonth < months) {
+                const isBeforeStart = (y === 0 && m < startMonth);
+                const savingsValue = isBeforeStart ? -1 : monthlySavingsList[totalMonth % monthlySavingsList.length];
                 tableHTML += `<td><input type="number" class="savings-input" data-year="${currentYear}" data-month="${m}" value="${savingsValue}" step="5" ${isBeforeStart ? 'disabled' : ''}></td>`;
             } else {
-                tableHTML += '<td>-</td>'; // Cella vuota se fuori durata
+                tableHTML += '<td>-</td>';
             }
         }
         tableHTML += '</tr>';
@@ -97,104 +99,119 @@ function generateSavingsTable(startYear, startMonth, months, renewalMonths, mont
     return tableHTML;
 }
 
-// Funzione asincrona per calcolare i profitti
-async function calculateProfits(startYear, startMonth, months, initialBalance, renewalMonths, annualRate) {
-    loader.classList.add('active'); // Mostra il caricamento
-    resultsDiv.innerHTML = ''; // Pulisce i risultati precedenti
+async function calculateProfits(startDate, months, initialBalance, renewalPeriods, annualRate) {
+    loader.classList.add('active');
+    resultsDiv.innerHTML = '';
     saveResultsBtn.style.display = 'none';
     saveAllBtn.style.display = 'none';
 
-    const savingsInputs = document.querySelectorAll('.savings-input'); // Raccoglie gli input della tabella
+    const savingsInputs = document.querySelectorAll('.savings-input');
     const savingsList = [];
     savingsInputs.forEach(input => {
         if (!input.disabled) {
-            savingsList.push(parseFloat(input.value)); // Aggiunge i valori modificabili
+            savingsList.push(parseFloat(input.value));
         }
     });
 
-    if (savingsList.some(v => v < 0 || isNaN(v))) { // Controlla validità dei risparmi
+    if (savingsList.some(v => v < 0 || isNaN(v))) {
         resultsDiv.innerHTML = '<p>Errore: i risparmi mensili devono essere numeri positivi.</p>';
         loader.classList.remove('active');
         return;
     }
 
-    // Calcolo dei risparmi per ogni periodo di rinnovo
     const renewalSavingsList = [];
-    for (let i = 0; i < savingsList.length; i += renewalMonths) {
-        const chunk = savingsList.slice(i, i + renewalMonths); // Prende un blocco di mesi
-        const sum = chunk.reduce((a, b) => a + b, 0); // Somma i risparmi del blocco
+    for (let i = 0; i < savingsList.length; i += renewalPeriods) {
+        const chunk = savingsList.slice(i, i + renewalPeriods);
+        const sum = chunk.reduce((a, b) => a + b, 0);
         renewalSavingsList.push(sum);
     }
 
-    // Calcolo della media (solo per visualizzazione, non usata nei calcoli)
     const averageRenewalSavings = renewalSavingsList.reduce((a, b) => a + b, 0) / renewalSavingsList.length;
 
-    await new Promise(resolve => setTimeout(resolve, 100)); // Breve ritardo per UX
+    await new Promise(resolve => setTimeout(resolve, 100));
 
-    const years = months / 12; // Numero di anni dall'input
-    const periodsPerYear = 12 / renewalMonths; // Numero di periodi in un anno
-    const ratePerPeriodStandard = annualRate / periodsPerYear; // Tasso per periodo Standard
-    const ratePerPeriodPremium = (annualRate + 0.001) / periodsPerYear; // Tasso per periodo Premium (+0,1%)
-    const periodsTotal = Math.floor(months / renewalMonths); // Numero totale di periodi
-    const premiumCost = 49.99; // Costo fisso annuale per Premium
-    const taxRate = 0.26; // Aliquota fiscale sugli interessi
+    const years = months / 12;
+    const periodsTotal = Math.floor(months / renewalPeriods);
+    const premiumCost = new Decimal('49.99');
+    const taxRate = new Decimal('0.26');
 
-    const results = []; // Array per salvare i risultati di tutte le combinazioni
-    const calculateInvestment = (combo) => { // Funzione per calcolare una singola combinazione
-        let balance = initialBalance; // Saldo iniziale
-        let totalPremiumCost = 0; // Costo totale Premium
-        for (let year = 0; year < combo.length; year++) { // Per ogni anno
-            const periodsLeft = Math.min(periodsPerYear, periodsTotal - year * periodsPerYear); // Periodi rimanenti nell'anno
-            for (let p = 0; p < periodsLeft; p++) { // Per ogni periodo nell'anno
-                const periodIndex = year * periodsPerYear + p; // Indice del periodo
-                const rate = combo[year] === '0' ? ratePerPeriodStandard : ratePerPeriodPremium; // Scelta del tasso
-                const interest = balance * rate; // Calcolo dell'interesse lordo
-                const taxedInterest = interest * (1 - taxRate); // Interesse netto dopo tasse
-                balance += taxedInterest + (renewalSavingsList[periodIndex] || 0); // Aggiorna il saldo
-            }
-            if (combo[year] === '1') { // Se l'anno è Premium
-                totalPremiumCost += premiumCost; // Aggiunge il costo
-                balance -= premiumCost; // Sottrae il costo dal saldo
-            }
-        }
-        const totalSavings = renewalSavingsList.reduce((a, b) => a + b, 0); // Somma totale dei risparmi
-        const finalGain = balance - initialBalance - totalSavings; // Guadagno netto
-        return { combo, finalGain, finalBalance: balance, totalPremiumCost }; // Risultato della combinazione
-    };
-
-    // Generazione delle combinazioni
-    if (months <= 240) { // Se la durata è ≤ 20 anni
-        const allCombinations = [];
-        for (let i = 0; i < 2 ** years; i++) {
-            const combo = i.toString(2).padStart(years, '0'); // Genera tutte le combinazioni binarie
-            allCombinations.push(combo);
-        }
-        allCombinations.forEach(combo => results.push(calculateInvestment(combo))); // Calcola ogni combinazione
-    } else { // Per durate > 20 anni, calcolo approssimativo
-        for (let i = 0; i <= years; i++) {
-            results.push(calculateInvestment('0'.repeat(i) + '1'.repeat(years - i))); // Da tutto Standard a tutto Premium
-        }
-        for (let i = 1; i < years; i++) {
-            results.push(calculateInvestment('1'.repeat(i) + '0'.repeat(years - i))); // Da tutto Premium a tutto Standard
-        }
-        resultsDiv.innerHTML += '<p>Nota: Per anni > 20 (240 mesi), il calcolo è meno preciso.</p>'; // Avviso
+    const renewalDates = [new Date(startDate)];
+    for (let i = 1; i <= periodsTotal; i++) {
+        renewalDates.push(addMonths(startDate, i * renewalPeriods));
+    }
+    const daysPerPeriod = [];
+    for (let i = 0; i < periodsTotal; i++) {
+        daysPerPeriod.push(getDaysBetween(renewalDates[i], renewalDates[i + 1]));
     }
 
-    results.sort((a, b) => b.finalGain - a.finalGain); // Ordina per guadagno decrescente
-    const top10 = results.slice(0, 10); // Prende le prime 10 combinazioni
-    const allZeros = results.find(r => r.combo === '0'.repeat(years)); // Combinazione tutta Standard
-    const allOnes = results.find(r => r.combo === '1'.repeat(years)); // Combinazione tutta Premium
+    const results = [];
+    const calculateInvestment = (combo) => {
+        let balance = new Decimal(initialBalance);
+        let totalPremiumCost = new Decimal(0);
+        let totalGrossInterest = new Decimal(0);
+        let totalNetInterest = new Decimal(0);
 
-    // Output HTML dei risultati
+        for (let year = 0; year < combo.length; year++) {
+            const periodsPerYear = 12 / renewalPeriods;
+            const periodsLeft = Math.min(periodsPerYear, periodsTotal - year * periodsPerYear);
+            for (let p = 0; p < periodsLeft; p++) {
+                const periodIndex = year * periodsPerYear + p;
+                const days = new Decimal(daysPerPeriod[periodIndex]);
+                const rate = combo[year] === '0' ? new Decimal(annualRate) : new Decimal(annualRate).plus('0.001');
+                const grossInterest = balance.times(rate).times(days).div(365).toDecimalPlaces(2);
+                const netInterest = grossInterest.times(Decimal.sub(1, taxRate)).toDecimalPlaces(2);
+                totalGrossInterest = totalGrossInterest.plus(grossInterest);
+                totalNetInterest = totalNetInterest.plus(netInterest);
+                balance = balance.plus(netInterest).plus(renewalSavingsList[periodIndex] || 0);
+            }
+            if (combo[year] === '1') {
+                totalPremiumCost = totalPremiumCost.plus(premiumCost);
+                balance = balance.minus(premiumCost);
+            }
+        }
+        const totalSavings = renewalSavingsList.reduce((a, b) => a + b, 0);
+        const finalGain = totalNetInterest.minus(totalPremiumCost);
+        return { 
+            combo, 
+            finalGain: Number(finalGain.toFixed(2)), 
+            finalBalance: Number(balance.toFixed(2)), 
+            totalPremiumCost: Number(totalPremiumCost.toFixed(2)), 
+            totalGrossInterest: Number(totalGrossInterest.toFixed(2)) 
+        };
+    };
+
+    if (months <= 240) {
+        const allCombinations = [];
+        for (let i = 0; i < 2 ** years; i++) {
+            const combo = i.toString(2).padStart(years, '0');
+            allCombinations.push(combo);
+        }
+        allCombinations.forEach(combo => results.push(calculateInvestment(combo)));
+    } else {
+        for (let i = 0; i <= years; i++) {
+            results.push(calculateInvestment('0'.repeat(i) + '1'.repeat(years - i)));
+        }
+        for (let i = 1; i < years; i++) {
+            results.push(calculateInvestment('1'.repeat(i) + '0'.repeat(years - i)));
+        }
+        resultsDiv.innerHTML += '<p>Nota: Per anni > 20 (240 mesi), il calcolo è meno preciso.</p>';
+    }
+
+    results.sort((a, b) => b.finalGain - a.finalGain);
+    const top10 = results.slice(0, 10);
+    const allZeros = results.find(r => r.combo === '0'.repeat(years));
+    const allOnes = results.find(r => r.combo === '1'.repeat(years));
+
     const outputHTML = `
         <p>Anni: ${years}</p>
         <p>Mesi: ${months}</p>
         <p>Saldo iniziale: ${formatNumber(initialBalance)} €</p>
-        <p>In media al rinnovo risparmi (solo a scopo informativo): ${formatNumber(averageRenewalSavings)} €</p>
+        <p>In media al rinnovo risparmi: ${formatNumber(averageRenewalSavings)} €</p>
         <p>Tasso lordo annuale: ${formatNumber(annualRate * 100)}%</p>
         <h3>Combinazione solo Standard (tutti 0):</h3>
         <pre>
 Combinazione            ${allZeros.combo}
+Interessi lordi totali  ${formatNumber(allZeros.totalGrossInterest)} €
 Guadagno finale         ${formatNumber(allZeros.finalGain)} €
 Saldo finale            ${formatNumber(allZeros.finalBalance)} €
 Costo Premium totale    ${formatNumber(allZeros.totalPremiumCost)} €
@@ -202,6 +219,7 @@ Costo Premium totale    ${formatNumber(allZeros.totalPremiumCost)} €
         <h3>Combinazione solo Premium (tutti 1):</h3>
         <pre>
 Combinazione            ${allOnes.combo}
+Interessi lordi totali  ${formatNumber(allOnes.totalGrossInterest)} €
 Guadagno finale         ${formatNumber(allOnes.finalGain)} €
 Saldo finale            ${formatNumber(allOnes.finalBalance)} €
 Costo Premium totale    ${formatNumber(allOnes.totalPremiumCost)} €
@@ -212,6 +230,7 @@ Costo Premium totale    ${formatNumber(allOnes.totalPremiumCost)} €
             <thead>
                 <tr>
                     <th>Combinazione</th>
+                    <th>Interessi lordi</th>
                     <th>Guadagno finale</th>
                     <th>Saldo finale</th>
                     <th>Costo Premium totale</th>
@@ -221,6 +240,7 @@ Costo Premium totale    ${formatNumber(allOnes.totalPremiumCost)} €
                 ${top10.map(r => `
                     <tr>
                         <td>${r.combo}</td>
+                        <td>${formatNumber(r.totalGrossInterest)} €</td>
                         <td>${formatNumber(r.finalGain)} €</td>
                         <td>${formatNumber(r.finalBalance)} €</td>
                         <td>${formatNumber(r.totalPremiumCost)} €</td>
@@ -228,25 +248,23 @@ Costo Premium totale    ${formatNumber(allOnes.totalPremiumCost)} €
                 `).join('')}
             </tbody>
         </table>
-        <p><strong>Nota Importante:</strong> <em>Questo programma è uno strumento di simulazione e può contenere errori o imprecisioni. Non è un sostituto di un consulente finanziario qualificato e non deve essere interpretato come un incentivo all'investimento. Si consiglia di consultare un professionista prima di prendere decisioni finanziarie.</em></p>
+        <p><strong>Nota:</strong> <em>Simulazione approssimativa, consultare un professionista finanziario.</em></p>
     `;
     resultsDiv.innerHTML = outputHTML;
-    saveResultsBtn.style.display = 'block'; // Mostra pulsante per salvare i risultati
-    saveAllBtn.style.display = 'block'; // Mostra pulsante per salvare tutto
+    saveResultsBtn.style.display = 'block';
+    saveAllBtn.style.display = 'block';
 
-    // Associa le funzioni ai pulsanti
     saveResultsBtn.onclick = () => saveResults(years, months, initialBalance, averageRenewalSavings, allZeros, allOnes, top10);
-    saveAllBtn.onclick = () => saveAllTables(startYear, startMonth, months, initialBalance, averageRenewalSavings, allZeros, allOnes, top10);
+    saveAllBtn.onclick = () => saveAllTables(startDate.getFullYear(), startDate.getMonth(), months, initialBalance, averageRenewalSavings, allZeros, allOnes, top10);
 
-    loader.classList.remove('active'); // Nasconde il caricamento
+    loader.classList.remove('active');
 }
 
-// Funzione per salvare la tabella dei risparmi in un file .txt
 function saveSavingsTable(startYear, startMonth, months) {
     const savingsInputs = document.querySelectorAll('.savings-input');
     const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
     
-    const endDate = new Date(startYear, startMonth + months, 1);
+    const endDate = addMonths(new Date(startYear, startMonth, 1), months);
     const endYear = endDate.getFullYear();
     const years = endYear - startYear + 1;
 
@@ -255,7 +273,7 @@ function saveSavingsTable(startYear, startMonth, months) {
     const endDateStr = `${monthNames[endMonth]} ${endYear}`;
 
     let textContent = `Tabella dei Risparmi\n`;
-    textContent += `Durata: ${months} mesi (${years - 1} anni)\n`; // Durata in mesi e anni
+    textContent += `Durata: ${months} mesi (${years - 1} anni)\n`;
     textContent += `Data di inizio: ${startDateStr}\n`;
     textContent += `Data di fine: ${endDateStr}\n\n`;
     textContent += `Risparmi Mensili:\n`;
@@ -268,43 +286,44 @@ function saveSavingsTable(startYear, startMonth, months) {
             if (totalMonth >= 0 && totalMonth < months) {
                 const input = document.querySelector(`.savings-input[data-year="${currentYear}"][data-month="${m}"]`);
                 const savingsValue = input ? parseFloat(input.value) : 0;
-                textContent += `  - ${monthNames[m]}: ${formatNumber(savingsValue)} €\n`; // Elenco dei risparmi
+                textContent += `  - ${monthNames[m]}: ${formatNumber(savingsValue)} €\n`;
             }
         }
     }
 
-    const blob = new Blob([textContent], { type: 'text/plain' }); // Crea il file
+    const blob = new Blob([textContent], { type: 'text/plain' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `risparmi-${startYear}-${months}.txt`; // Nome del file
-    link.click(); // Avvia il download
+    link.download = `risparmi-${startYear}-${months}.txt`;
+    link.click();
 }
 
-// Funzione per salvare i risultati dei profitti in un file .txt
 function saveResults(years, months, initialBalance, averageRenewalSavings, allZeros, allOnes, top10) {
     const textContent = `
 Calcolatore di Investimento
 Anni: ${years}
 Mesi: ${months}
 Saldo iniziale: ${formatNumber(initialBalance)} €
-In media al rinnovo risparmi (solo a scopo informativo): ${formatNumber(averageRenewalSavings)} €
+In media al rinnovo risparmi: ${formatNumber(averageRenewalSavings)} €
 
 Combinazione solo Standard (tutti 0):
 Combinazione:            ${allZeros.combo}
+Interessi lordi totali:  ${formatNumber(allZeros.totalGrossInterest)} €
 Guadagno finale:         ${formatNumber(allZeros.finalGain)} €
 Saldo finale:            ${formatNumber(allZeros.finalBalance)} €
 Costo Premium totale:    ${formatNumber(allZeros.totalPremiumCost)} €
 
 Combinazione solo Premium (tutti 1):
 Combinazione:            ${allOnes.combo}
+Interessi lordi totali:  ${formatNumber(allOnes.totalGrossInterest)} €
 Guadagno finale:         ${formatNumber(allOnes.finalGain)} €
 Saldo finale:            ${formatNumber(allOnes.finalBalance)} €
 Costo Premium totale:    ${formatNumber(allOnes.totalPremiumCost)} €
 
 I migliori 10 investimenti finali:
 Nota: 0 = Standard, 1 = Premium
-${'Combinazione'.padEnd(30)} Guadagno finale  Saldo finale  Costo Premium totale
-${top10.map(r => `${r.combo.padEnd(30)} ${formatNumber(r.finalGain).padStart(15)} € ${formatNumber(r.finalBalance).padStart(12)} € ${formatNumber(r.totalPremiumCost).padStart(20)} €`).join('\n')}
+${'Combinazione'.padEnd(30)} Interessi lordi Guadagno finale  Saldo finale  Costo Premium totale
+${top10.map(r => `${r.combo.padEnd(30)} ${formatNumber(r.totalGrossInterest).padStart(15)} € ${formatNumber(r.finalGain).padStart(15)} € ${formatNumber(r.finalBalance).padStart(12)} € ${formatNumber(r.totalPremiumCost).padStart(20)} €`).join('\n')}
     `;
     const blob = new Blob([textContent], { type: 'text/plain' });
     const link = document.createElement('a');
@@ -313,13 +332,12 @@ ${top10.map(r => `${r.combo.padEnd(30)} ${formatNumber(r.finalGain).padStart(15)
     link.click();
 }
 
-// Funzione per salvare sia la tabella dei risparmi che i profitti in un unico file .txt
 function saveAllTables(startYear, startMonth, months, initialBalance, averageRenewalSavings, allZeros, allOnes, top10) {
     const savingsInputs = document.querySelectorAll('.savings-input');
     const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
-    const endDate = new Date(startYear, startMonth + months, 1);
+    const endDate = addMonths(new Date(startYear, startMonth, 1), months);
     const endYear = endDate.getFullYear();
-    const years = months / 12; // Anni calcolati dai mesi totali
+    const years = months / 12;
 
     const endMonth = endDate.getMonth();
     const startDateStr = `${monthNames[startMonth]} ${startYear}`;
@@ -330,31 +348,31 @@ function saveAllTables(startYear, startMonth, months, initialBalance, averageRen
     textContent += `Data di inizio: ${startDateStr}\n`;
     textContent += `Data di fine: ${endDateStr}\n\n`;
 
-    // Sezione dei profitti
     textContent += `Risultati dei Profitti\n`;
     textContent += `Anni: ${years}\n`;
     textContent += `Mesi: ${months}\n`;
     textContent += `Saldo iniziale: ${formatNumber(initialBalance)} €\n`;
-    textContent += `In media al rinnovo risparmi (solo a scopo informativo): ${formatNumber(averageRenewalSavings)} €\n\n`;
+    textContent += `In media al rinnovo risparmi: ${formatNumber(averageRenewalSavings)} €\n\n`;
     textContent += `Combinazione solo Standard (tutti 0):\n`;
     textContent += `Combinazione:            ${allZeros.combo}\n`;
+    textContent += `Interessi lordi totali:  ${formatNumber(allZeros.totalGrossInterest)} €\n`;
     textContent += `Guadagno finale:         ${formatNumber(allZeros.finalGain)} €\n`;
     textContent += `Saldo finale:            ${formatNumber(allZeros.finalBalance)} €\n`;
     textContent += `Costo Premium totale:    ${formatNumber(allZeros.totalPremiumCost)} €\n\n`;
     textContent += `Combinazione solo Premium (tutti 1):\n`;
     textContent += `Combinazione:            ${allOnes.combo}\n`;
+    textContent += `Interessi lordi totali:  ${formatNumber(allOnes.totalGrossInterest)} €\n`;
     textContent += `Guadagno finale:         ${formatNumber(allOnes.finalGain)} €\n`;
     textContent += `Saldo finale:            ${formatNumber(allOnes.finalBalance)} €\n`;
     textContent += `Costo Premium totale:    ${formatNumber(allOnes.totalPremiumCost)} €\n\n`;
     textContent += `I migliori 10 investimenti finali:\n`;
     textContent += `Nota: 0 = Standard, 1 = Premium\n`;
-    textContent += `${'Combinazione'.padEnd(30)} Guadagno finale  Saldo finale  Costo Premium totale\n`;
-    textContent += `${top10.map(r => `${r.combo.padEnd(30)} ${formatNumber(r.finalGain).padStart(15)} € ${formatNumber(r.finalBalance).padStart(12)} € ${formatNumber(r.totalPremiumCost).padStart(20)} €`).join('\n')}\n`;
+    textContent += `${'Combinazione'.padEnd(30)} Interessi lordi Guadagno finale  Saldo finale  Costo Premium totale\n`;
+    textContent += `${top10.map(r => `${r.combo.padEnd(30)} ${formatNumber(r.totalGrossInterest).padStart(15)} € ${formatNumber(r.finalGain).padStart(15)} € ${formatNumber(r.finalBalance).padStart(12)} € ${formatNumber(r.totalPremiumCost).padStart(20)} €`).join('\n')}\n`;
 
-    // Sezione dei risparmi
     textContent += `\nTabella dei Risparmi\n`;
     textContent += `Risparmi Mensili:\n`;
-    for (let y = 0; y < years + 1; y++) { // +1 per includere l'anno finale parziale se presente
+    for (let y = 0; y < years + 1; y++) {
         const currentYear = startYear + y;
         textContent += `- ${currentYear}:\n`;
         for (let m = 0; m < 12; m++) {
