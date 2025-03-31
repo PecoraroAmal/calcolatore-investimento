@@ -13,13 +13,11 @@ const formatNumber = (num) => {
         .replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 };
 
-// Funzione per calcolare i giorni tra due date
 const getDaysBetween = (startDate, endDate) => {
     const oneDay = 24 * 60 * 60 * 1000;
     return Math.round((endDate - startDate) / oneDay);
 };
 
-// Funzione per aggiungere mesi a una data
 const addMonths = (date, months) => {
     const newDate = new Date(date);
     newDate.setMonth(newDate.getMonth() + months);
@@ -146,10 +144,9 @@ async function calculateProfits(startDate, months, initialBalance, renewalPeriod
 
     const results = [];
     const calculateInvestment = (combo) => {
-        let balance = new Decimal(initialBalance);
-        let totalPremiumCost = new Decimal(0);
-        let totalGrossInterest = new Decimal(0);
-        let totalNetInterest = new Decimal(0);
+        let balance = new Decimal(initialBalance).toDecimalPlaces(2);
+        let totalPremiumCost = new Decimal(0).toDecimalPlaces(2);
+        let totalNetInterest = new Decimal(0).toDecimalPlaces(2);
 
         for (let year = 0; year < combo.length; year++) {
             const periodsPerYear = 12 / renewalPeriods;
@@ -157,26 +154,25 @@ async function calculateProfits(startDate, months, initialBalance, renewalPeriod
             for (let p = 0; p < periodsLeft; p++) {
                 const periodIndex = year * periodsPerYear + p;
                 const days = new Decimal(daysPerPeriod[periodIndex]);
-                const rate = combo[year] === '0' ? new Decimal(annualRate) : new Decimal(annualRate).plus('0.001');
+                const rate = combo[year] === '0' ? 
+                    new Decimal(annualRate) : 
+                    new Decimal(annualRate).plus('0.001');
                 const grossInterest = balance.times(rate).times(days).div(365).toDecimalPlaces(2);
                 const netInterest = grossInterest.times(Decimal.sub(1, taxRate)).toDecimalPlaces(2);
-                totalGrossInterest = totalGrossInterest.plus(grossInterest);
-                totalNetInterest = totalNetInterest.plus(netInterest);
-                balance = balance.plus(netInterest).plus(renewalSavingsList[periodIndex] || 0);
+                totalNetInterest = totalNetInterest.plus(netInterest).toDecimalPlaces(2);
+                balance = balance.plus(netInterest).plus(renewalSavingsList[periodIndex] || 0).toDecimalPlaces(2);
             }
             if (combo[year] === '1') {
-                totalPremiumCost = totalPremiumCost.plus(premiumCost);
-                balance = balance.minus(premiumCost);
+                totalPremiumCost = totalPremiumCost.plus(premiumCost).toDecimalPlaces(2);
+                balance = balance.minus(premiumCost).toDecimalPlaces(2);
             }
         }
-        const totalSavings = renewalSavingsList.reduce((a, b) => a + b, 0);
-        const finalGain = totalNetInterest.minus(totalPremiumCost);
+        const finalGain = totalNetInterest.minus(totalPremiumCost).toDecimalPlaces(2);
         return { 
             combo, 
-            finalGain: Number(finalGain.toFixed(2)), 
-            finalBalance: Number(balance.toFixed(2)), 
-            totalPremiumCost: Number(totalPremiumCost.toFixed(2)), 
-            totalGrossInterest: Number(totalGrossInterest.toFixed(2)) 
+            finalGain: Number(finalGain), 
+            finalBalance: Number(balance), 
+            totalPremiumCost: Number(totalPremiumCost)
         };
     };
 
@@ -211,7 +207,6 @@ async function calculateProfits(startDate, months, initialBalance, renewalPeriod
         <h3>Combinazione solo Standard (tutti 0):</h3>
         <pre>
 Combinazione            ${allZeros.combo}
-Interessi lordi totali  ${formatNumber(allZeros.totalGrossInterest)} €
 Guadagno finale         ${formatNumber(allZeros.finalGain)} €
 Saldo finale            ${formatNumber(allZeros.finalBalance)} €
 Costo Premium totale    ${formatNumber(allZeros.totalPremiumCost)} €
@@ -219,7 +214,6 @@ Costo Premium totale    ${formatNumber(allZeros.totalPremiumCost)} €
         <h3>Combinazione solo Premium (tutti 1):</h3>
         <pre>
 Combinazione            ${allOnes.combo}
-Interessi lordi totali  ${formatNumber(allOnes.totalGrossInterest)} €
 Guadagno finale         ${formatNumber(allOnes.finalGain)} €
 Saldo finale            ${formatNumber(allOnes.finalBalance)} €
 Costo Premium totale    ${formatNumber(allOnes.totalPremiumCost)} €
@@ -230,7 +224,6 @@ Costo Premium totale    ${formatNumber(allOnes.totalPremiumCost)} €
             <thead>
                 <tr>
                     <th>Combinazione</th>
-                    <th>Interessi lordi</th>
                     <th>Guadagno finale</th>
                     <th>Saldo finale</th>
                     <th>Costo Premium totale</th>
@@ -240,7 +233,6 @@ Costo Premium totale    ${formatNumber(allOnes.totalPremiumCost)} €
                 ${top10.map(r => `
                     <tr>
                         <td>${r.combo}</td>
-                        <td>${formatNumber(r.totalGrossInterest)} €</td>
                         <td>${formatNumber(r.finalGain)} €</td>
                         <td>${formatNumber(r.finalBalance)} €</td>
                         <td>${formatNumber(r.totalPremiumCost)} €</td>
@@ -248,7 +240,7 @@ Costo Premium totale    ${formatNumber(allOnes.totalPremiumCost)} €
                 `).join('')}
             </tbody>
         </table>
-        <p><strong>Nota:</strong> <em>Simulazione approssimativa, consultare un professionista finanziario.</em></p>
+        <p><strong>Nota Importante:</strong> <em>Questo programma è uno strumento di simulazione e può contenere errori o imprecisioni. Non è un sostituto di un consulente finanziario qualificato e non deve essere interpretato come un incentivo all'investimento. Si consiglia di consultare un professionista prima di prendere decisioni finanziarie.</em></p>
     `;
     resultsDiv.innerHTML = outputHTML;
     saveResultsBtn.style.display = 'block';
@@ -308,22 +300,20 @@ In media al rinnovo risparmi: ${formatNumber(averageRenewalSavings)} €
 
 Combinazione solo Standard (tutti 0):
 Combinazione:            ${allZeros.combo}
-Interessi lordi totali:  ${formatNumber(allZeros.totalGrossInterest)} €
 Guadagno finale:         ${formatNumber(allZeros.finalGain)} €
 Saldo finale:            ${formatNumber(allZeros.finalBalance)} €
 Costo Premium totale:    ${formatNumber(allZeros.totalPremiumCost)} €
 
 Combinazione solo Premium (tutti 1):
 Combinazione:            ${allOnes.combo}
-Interessi lordi totali:  ${formatNumber(allOnes.totalGrossInterest)} €
 Guadagno finale:         ${formatNumber(allOnes.finalGain)} €
 Saldo finale:            ${formatNumber(allOnes.finalBalance)} €
 Costo Premium totale:    ${formatNumber(allOnes.totalPremiumCost)} €
 
 I migliori 10 investimenti finali:
 Nota: 0 = Standard, 1 = Premium
-${'Combinazione'.padEnd(30)} Interessi lordi Guadagno finale  Saldo finale  Costo Premium totale
-${top10.map(r => `${r.combo.padEnd(30)} ${formatNumber(r.totalGrossInterest).padStart(15)} € ${formatNumber(r.finalGain).padStart(15)} € ${formatNumber(r.finalBalance).padStart(12)} € ${formatNumber(r.totalPremiumCost).padStart(20)} €`).join('\n')}
+${'Combinazione'.padEnd(30)} Guadagno finale  Saldo finale  Costo Premium totale
+${top10.map(r => `${r.combo.padEnd(30)} ${formatNumber(r.finalGain).padStart(15)} € ${formatNumber(r.finalBalance).padStart(12)} € ${formatNumber(r.totalPremiumCost).padStart(20)} €`).join('\n')}
     `;
     const blob = new Blob([textContent], { type: 'text/plain' });
     const link = document.createElement('a');
@@ -355,20 +345,18 @@ function saveAllTables(startYear, startMonth, months, initialBalance, averageRen
     textContent += `In media al rinnovo risparmi: ${formatNumber(averageRenewalSavings)} €\n\n`;
     textContent += `Combinazione solo Standard (tutti 0):\n`;
     textContent += `Combinazione:            ${allZeros.combo}\n`;
-    textContent += `Interessi lordi totali:  ${formatNumber(allZeros.totalGrossInterest)} €\n`;
     textContent += `Guadagno finale:         ${formatNumber(allZeros.finalGain)} €\n`;
     textContent += `Saldo finale:            ${formatNumber(allZeros.finalBalance)} €\n`;
     textContent += `Costo Premium totale:    ${formatNumber(allZeros.totalPremiumCost)} €\n\n`;
     textContent += `Combinazione solo Premium (tutti 1):\n`;
     textContent += `Combinazione:            ${allOnes.combo}\n`;
-    textContent += `Interessi lordi totali:  ${formatNumber(allOnes.totalGrossInterest)} €\n`;
     textContent += `Guadagno finale:         ${formatNumber(allOnes.finalGain)} €\n`;
     textContent += `Saldo finale:            ${formatNumber(allOnes.finalBalance)} €\n`;
     textContent += `Costo Premium totale:    ${formatNumber(allOnes.totalPremiumCost)} €\n\n`;
     textContent += `I migliori 10 investimenti finali:\n`;
     textContent += `Nota: 0 = Standard, 1 = Premium\n`;
-    textContent += `${'Combinazione'.padEnd(30)} Interessi lordi Guadagno finale  Saldo finale  Costo Premium totale\n`;
-    textContent += `${top10.map(r => `${r.combo.padEnd(30)} ${formatNumber(r.totalGrossInterest).padStart(15)} € ${formatNumber(r.finalGain).padStart(15)} € ${formatNumber(r.finalBalance).padStart(12)} € ${formatNumber(r.totalPremiumCost).padStart(20)} €`).join('\n')}\n`;
+    textContent += `${'Combinazione'.padEnd(30)} Guadagno finale  Saldo finale  Costo Premium totale\n`;
+    textContent += `${top10.map(r => `${r.combo.padEnd(30)} ${formatNumber(r.finalGain).padStart(15)} € ${formatNumber(r.finalBalance).padStart(12)} € ${formatNumber(r.totalPremiumCost).padStart(20)} €`).join('\n')}\n`;
 
     textContent += `\nTabella dei Risparmi\n`;
     textContent += `Risparmi Mensili:\n`;
