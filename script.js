@@ -176,7 +176,7 @@ async function calculateProfits(startDate, months, initialBalance, renewalPeriod
         };
     };
 
-    if (months <= 240) {
+    if (months <= 180) {
         const allCombinations = [];
         for (let i = 0; i < 2 ** years; i++) {
             const combo = i.toString(2).padStart(years, '0');
@@ -190,7 +190,7 @@ async function calculateProfits(startDate, months, initialBalance, renewalPeriod
         for (let i = 1; i < years; i++) {
             results.push(calculateInvestment('1'.repeat(i) + '0'.repeat(years - i)));
         }
-        resultsDiv.innerHTML += '<p>Nota: Per anni > 20 (240 mesi), il calcolo è meno preciso.</p>';
+        resultsDiv.innerHTML += '<p>Nota: Per anni > 15 il calcolo è meno preciso.</p>';
     }
 
     results.sort((a, b) => b.finalGain - a.finalGain);
