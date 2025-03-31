@@ -13,7 +13,7 @@ function generateTable() {
     const monthlySavingsInput = document.getElementById('calcMonthlySavings').value.split(',').map(s => parseFloat(s.trim()));
     const months = years * 12;
     const startDate = new Date(document.getElementById('calcStartDate').value);
-    const startMonth = startDate.getMonth(); // 0-11 (Gennaio = 0, ecc.)
+    const startMonth = startDate.getMonth();
     const startYear = startDate.getFullYear();
 
     if (monthlySavingsInput.length !== 1 && monthlySavingsInput.length !== renewalMonths) {
@@ -21,13 +21,13 @@ function generateTable() {
         return;
     }
 
-    let savingsList = new Array(months).fill(0); // Inizializza con zeri
+    let savingsList = new Array(months).fill(0);
     let cycleIndex = 0;
     for (let i = 0; i < months; i++) {
         const currentMonth = (startMonth + i) % 12;
         const currentYear = startYear + Math.floor((startMonth + i) / 12);
-        const monthIndex = currentYear * 12 + currentMonth - startYear * 12; // Indice assoluto rispetto all'anno iniziale
-        if (monthIndex >= i) { // Solo i mesi a partire dalla data di inizio
+        const monthIndex = currentYear * 12 + currentMonth - startYear * 12;
+        if (monthIndex >= i) {
             savingsList[i] = monthlySavingsInput[cycleIndex % monthlySavingsInput.length];
             cycleIndex++;
         }
@@ -47,7 +47,7 @@ function generateTable() {
             const index = year * 12 + month;
             if (index < months) {
                 if (year === 0 && month < startMonth) {
-                    tableHTML += '<td>-</td>'; // Mesi precedenti alla data di inizio
+                    tableHTML += '<td>-</td>';
                 } else {
                     tableHTML += `<td><input type="number" value="${savingsList[index]}" step="0.01" onchange="updateSavings(${index}, this.value)"></td>`;
                 }
@@ -80,6 +80,8 @@ function calculateProfits() {
         const standardRate = annualRate / periodsPerYear;
         const premiumRate = (annualRate + 0.001) / periodsPerYear;
         const premiumCost = 49.99;
+        const startDate = new Date(document.getElementById('calcStartDate').value);
+        const monthlySavingsInput = document.getElementById('calcMonthlySavings').value;
 
         let renewalSavingsList = [];
         for (let i = 0; i < totalPeriods; i++) {
@@ -139,22 +141,29 @@ function calculateProfits() {
         const allPremium = results.find(r => r.combination === '1'.repeat(years));
 
         let resultsHTML = `
-        <h2>Risultati</h2>
-        <p><strong>Tutto Standard:</strong> <br> Saldo Finale: ${formatNumber(allStandard.finalBalance)} €<br>Guadagno: ${formatNumber(allStandard.finalGain)} €</p>
-        <p><strong>Tutto Premium:</strong> <br> Saldo Finale: ${formatNumber(allPremium.finalBalance)} €<br>Guadagno: ${formatNumber(allPremium.finalGain)} €<br>Costo Premium: ${formatNumber(allPremium.totalPremiumCost)} €</p>
-        <h3>Top 10 Combinazioni</h3>
-        <table>
-            <tr><th>Combinazione</th><th>Saldo Finale (€)</th><th>Guadagno Finale (€)</th><th>Costo Premium (€)</th></tr>`;
+            <h2>Risultati</h2>
+            <p><strong>Dati Inseriti:</strong><br>
+                Data di Inizio: ${startDate.toLocaleDateString('it-IT')}<br>
+                Anni: ${years}<br>
+                Saldo Iniziale: ${formatNumber(initialBalance)} €<br>
+                Mesi per Rinnovo: ${renewalMonths}<br>
+                Risparmio Mensile: ${monthlySavingsInput}<br>
+                Tasso Lordo Annuale: ${formatNumber(annualRate * 100)} %</p>
+            <p><strong>Tutto Standard:</strong><br>Saldo Finale: ${formatNumber(allStandard.finalBalance)} €<br>Guadagno: ${formatNumber(allStandard.finalGain)} €</p>
+            <p><strong>Tutto Premium:</strong><br>Saldo Finale: ${formatNumber(allPremium.finalBalance)} €<br>Guadagno: ${formatNumber(allPremium.finalGain)} €<br>Costo Premium: ${formatNumber(allPremium.totalPremiumCost)} €</p>
+            <h3>Top 10 Combinazioni</h3>
+            <table>
+                <tr><th>Combinazione</th><th>Saldo Finale (€)</th><th>Guadagno Finale (€)</th><th>Costo Premium (€)</th></tr>`;
         top10.forEach(r => {
             resultsHTML += `<tr><td>${r.combination}</td><td>${formatNumber(r.finalBalance)}</td><td>${formatNumber(r.finalGain)}</td><td>${formatNumber(r.totalPremiumCost)}</td></tr>`;
         });
-            resultsHTML += `</table>
+        resultsHTML += `</table>
             <p><strong>Nota Importante:</strong> <em>Questo programma è uno strumento di simulazione e può contenere errori o imprecisioni. Non è un sostituto di un consulente finanziario qualificato e non deve essere interpretato come un incentivo all'investimento. Si consiglia di consultare un professionista prima di prendere decisioni finanziarie.</em></p>`;
 
-            document.getElementById('resultsContainer').innerHTML = resultsHTML;
-            document.getElementById('exportButtons').style.display = 'flex';
-            document.getElementById('loading').style.display = 'none';
-        }, 100);
+        document.getElementById('resultsContainer').innerHTML = resultsHTML;
+        document.getElementById('exportButtons').style.display = 'flex';
+        document.getElementById('loading').style.display = 'none';
+    }, 100);
 }
 
 function exportSavings() {
