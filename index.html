@@ -5,37 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calcolatore di Investimento</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="icon" type="image/x-icon" href="icona.png">
+    <link rel="icon" href="icona.png">
 </head>
 <body>
-    <h1>Simulatore di un Conto Deposito</h1>
-    <form id="investmentForm">
-        <label>Data di Inizio: <input type="date" id="startDate" required></label>
-        <label>Anni: <input type="number" id="years" step="1" min="1" placeholder="es. 20" required></label>
-        <label>Saldo Iniziale: <input type="number" id="initialBalance" step="100" min="1000" max="10000000" placeholder="Compreso tra 1.000€ e 10.000.000€" required></label>
-        <label>Mesi per Rinnovo: <input type="number" id="renewalMonths" min="1" placeholder="es. 3" required></label>
-        <label>Risparmio Mensile: 
-            <input type="text" id="monthlySavings" placeholder="Singolo valore o lista (es. 100 o 100, 200, 120)" required>
-        </label>
-        <label>Tasso Lordo Annuale (%): <input type="number" id="annualRate" step="0.01" min="0.01" placeholder="es. 2,75" required></label>
-        <button type="submit">Genera Tabella dei Risparmi</button>
-    </form>
-    <div id="savingsTable"></div>
-    <button id="calculateProfits" style="display:none;">Genera Profitti</button>
-    <div id="loader" class="loader">
-        <span class="spinner">⏳</span> Calcolo in corso...
-    </div>
-    <div id="results"></div>
-    <div class="button-container">
-        <button id="saveSavings" style="display:none;">Salva Tabella Risparmi</button>
-        <button id="saveResultsBtn" style="display:none;">Salva Profitti</button>
-        <button id="saveAll" style="display:none;">Salva Profitti e Risparmi</button>
+    <div class="container">
+        <h1>Calcolatore di Investimento</h1>
+        <form id="calcForm">
+            <label>Data di Inizio: <input type="date" id="calcStartDate" required></label>
+            <label>Anni: <input type="number" id="calcYears" step="1" min="1" placeholder="es. 20" required></label>
+            <label>Saldo Iniziale: <input type="number" id="calcInitialBalance" step="100" min="1000" max="10000000" placeholder="Compreso tra 1.000€ e 10.000.000€" required></label>
+            <label>Mesi per Rinnovo: <input type="number" id="calcRenewalMonths" min="1" placeholder="es. 3" required></label>
+            <label>Risparmio Mensile: 
+                <input type="text" id="calcMonthlySavings" placeholder="Singolo valore o lista (es. 100 o 100, 200, 120)" required>
+            </label>
+            <label>Tasso Lordo Annuale (%): <input type="number" id="calcAnnualRate" step="0.01" min="0.01" placeholder="es. 2,75" required></label>
+            <button type="submit">Genera Tabella dei Risparmi</button>
+        </form>
+
+        <div id="savingsTableContainer" class="table-wrapper"></div>
+        <button id="generateProfitsBtn" onclick="calculateProfits()" style="display:none;">Genera Profitti</button>
+
+        <div id="resultsContainer"></div>
+        <div id="loading" class="spinner" style="display:none;"></div>
+
+        <div id="exportButtons" style="display:none;">
+            <button onclick="exportSavings()">Salva Tabella Risparmi</button>
+            <button onclick="exportResults()">Salva Risultati</button>
+            <button onclick="exportAll()">Salva Profitti e Risparmi</button>
+        </div>
     </div>
     <footer>
         <p>Progetto disponibile su <a href="https://github.com/PecoraroAmal/calcolatore-investimento" target="_blank"><i class="fab fa-github"></i> GitHub</a></p>
     </footer>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/decimal.js/10.4.3/decimal.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
