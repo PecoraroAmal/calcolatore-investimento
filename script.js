@@ -152,6 +152,7 @@ function calculateProfits() {
             <p><strong>Tutto Standard:</strong><br>Saldo Finale: ${formatNumber(allStandard.finalBalance)} €<br>Guadagno: ${formatNumber(allStandard.finalGain)} €</p>
             <p><strong>Tutto Premium:</strong><br>Saldo Finale: ${formatNumber(allPremium.finalBalance)} €<br>Guadagno: ${formatNumber(allPremium.finalGain)} €<br>Costo Premium: ${formatNumber(allPremium.totalPremiumCost)} €</p>
             <h3>Top 10 Combinazioni</h3>
+            <p>Standard = 0, Premium = 1</p>
             <table>
                 <tr><th>Combinazione</th><th>Saldo Finale (€)</th><th>Guadagno Finale (€)</th><th>Costo Premium (€)</th></tr>`;
         top10.forEach(r => {
@@ -203,7 +204,7 @@ function exportSavings() {
 
 function exportResults() {
     const results = document.getElementById('resultsContainer').innerText;
-    download('risultati.txt', results);
+    download('tabella_profitti.txt', results);
 }
 
 function exportAll() {
