@@ -108,6 +108,3 @@ calcolatore-investimento/
 
 ## Avviso
 > Questo programma è uno strumento di simulazione e potrebbe contenere imprecisioni. Non sostituisce una consulenza finanziaria. Prima di investire, consulta un professionista.
-
-## Contributi
-Suggerimenti e miglioramenti sono benvenuti! Apri una **issue** o una **pull request** su GitHub.

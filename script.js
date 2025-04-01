@@ -17,7 +17,7 @@ function generateTable() {
     const startYear = startDate.getFullYear();
 
     if (monthlySavingsInput.length !== 1 && monthlySavingsInput.length !== renewalMonths) {
-        alert('Il numero di risparmi mensili deve essere 1 o uguale ai mesi per rinnovo.');
+        alert('Il numero di risparmi mensili deve essere un solo numero oppure uguale al numero di mesi per rinnovo.');
         return;
     }
 
