@@ -178,7 +178,7 @@ function exportSavings() {
 
     let text = 'Mese\t';
     for (let year = 0; year < years; year++) {
-        text += `Anno ${year + 1} (${startYear + year})\t`;
+        text += `${startYear + year} (${year + 1}°) \t`;
     }
     text += '\n';
 
