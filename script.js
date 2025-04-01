@@ -35,7 +35,7 @@ function generateTable() {
 
     let tableHTML = '<table><tr><th>Mese</th>';
     for (let year = 0; year < years; year++) {
-        tableHTML += `<th>Anno ${year + 1} (${startYear + year})</th>`;
+        tableHTML += `<th>${startYear + year} (${year + 1}°)</th>`;
     }
     tableHTML += '</tr>';
 
