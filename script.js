@@ -182,11 +182,8 @@ function calculateProfits() {
                 Saldo Iniziale: ${formatNumber(initialBalance)} €<br>
                 Mesi per Rinnovo: ${renewalMonths}<br>
                 Risparmio Mensile Iniziale: ${monthlySavingsInput}<br>
-                Tasso Lordo Annuale Standard: ${formatNumber(annualRate * 100)} %<br>
-                Tasso Lordo Annuale Premium: ${formatNumber((annualRate + premiumIncrement) * 100)} %<br>
-                ${savingsTableText}</p>
-            <p><strong>Tutto Standard:</strong><br>Saldo Finale: ${formatNumber(allStandard.finalBalance)} €<br>Guadagno: ${formatNumber(allStandard.finalGain)} €</p>
-            <p><strong>Tutto Premium:</strong><br>Saldo Finale: ${formatNumber(allPremium.finalBalance)} €<br>Guadagno: ${formatNumber(allPremium.finalGain)} €<br>Costo Premium: ${formatNumber(allPremium.totalPremiumCost)} €</p>
+            <p><strong>Tutto Standard:</strong><br>Saldo Finale: ${formatNumber(allStandard.finalBalance)} €<br>Guadagno: ${formatNumber(allStandard.finalGain)} € <br> Tasso Lordo Annuale: ${formatNumber(annualRate * 100)} %<br></p>
+            <p><strong>Tutto Premium:</strong><br>Saldo Finale: ${formatNumber(allPremium.finalBalance)} €<br>Guadagno: ${formatNumber(allPremium.finalGain)} €<br>Costo Premium: ${formatNumber(allPremium.totalPremiumCost)} € <br> Tasso Lordo Annuale: ${formatNumber((annualRate + premiumIncrement) * 100)} %<br></p>
             <h3>Top 10 Combinazioni</h3>
             <p>Standard = 0, Premium = 1</p>
             <table>
