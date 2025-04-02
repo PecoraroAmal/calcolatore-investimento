@@ -18,6 +18,12 @@
             <label>Mesi per Rinnovo: <input type="number" id="calcRenewalMonths" min="1" placeholder="es. 3" required></label>
             <label>Risparmio Mensile: <input type="text" id="calcMonthlySavings" placeholder="Singolo valore o lista (es. 100 o 100, 200, 120)" required></label>
             <label>Tasso Lordo Annuale (%): <input type="number" id="calcAnnualRate" step="0.01" min="0.01" placeholder="es. 2,2" required></label>
+            <label>Accredito Stipendio: 
+                <div class="checkbox-container">
+                    <input type="checkbox" id="salaryCredit">
+                    <span class="checkbox-custom"></span>
+                </div>
+            </label>
             <button type="submit">Genera Tabella dei Risparmi</button>
         </form>
 

@@ -35,7 +35,59 @@ label {
     flex-direction: column;
 }
 
-input, button {
+/* Stile per la checkbox personalizzata */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+    margin-top: 5px;
+}
+
+.checkbox-container input[type="checkbox"] {
+    display: none; /* Nasconde la checkbox nativa */
+}
+
+.checkbox-custom {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #bdc3c7;
+    border-radius: 4px;
+    background-color: #fff;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.checkbox-container input[type="checkbox"]:checked + .checkbox-custom {
+    background-color: #3498db;
+    border-color: #3498db;
+}
+
+.checkbox-custom::after {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 12px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    top: 2px;
+    left: 6px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.checkbox-container input[type="checkbox"]:checked + .checkbox-custom::after {
+    opacity: 1;
+}
+
+.checkbox-container:hover .checkbox-custom {
+    border-color: #3498db;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+}
+
+input:not([type="checkbox"]), button {
     padding: 10px;
     margin-top: 5px;
     border-radius: 6px;
@@ -43,7 +95,7 @@ input, button {
     font-size: 1em;
 }
 
-input:focus {
+input:not([type="checkbox"]):focus {
     border-color: #3498db;
     outline: none;
     box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
@@ -93,7 +145,7 @@ th {
     position: sticky;
     top: 0;
     z-index: 1;
-    white-space: nowrap; /* Impedisce ai titoli di andare a capo */
+    white-space: nowrap;
 }
 
 td input {
@@ -153,13 +205,13 @@ tr:hover {
     color: #7f8c8d;
 }
 
-/* Stile per la colonna "Combinazione" scorribile */
 #resultsContainer table td:first-child {
     max-width: 200px;
     overflow-x: auto;
     white-space: nowrap;
 }
-footer{
+
+footer {
     text-align: center;
     margin-top: 20px;
     font-size: 14px;
