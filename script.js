@@ -86,6 +86,13 @@ function calculateProfits() {
         const premiumCost = 49.99;
         const startDate = new Date(document.getElementById('calcStartDate').value);
         const monthlySavingsInput = document.getElementById('calcMonthlySavings').value;
+        const startMonth = startDate.getMonth();
+        const startYear = startDate.getFullYear();
+        const months = years * 12;
+        const endDate = new Date(startDate);
+        endDate.setMonth(endDate.getMonth() + months);
+        const endYear = endDate.getFullYear();
+        const totalYears = endYear - startYear + 1;
 
         let renewalSavingsList = [];
         for (let i = 0; i < totalPeriods; i++) {
@@ -144,6 +151,29 @@ function calculateProfits() {
         const allStandard = results.find(r => r.combination === '0'.repeat(years));
         const allPremium = results.find(r => r.combination === '1'.repeat(years));
 
+        // Genera la tabella dei risparmi per i "Dati Inseriti"
+        const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 
+                           'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+        let savingsTableText = 'Tabella dei Risparmi:<br>Mese<br>';
+        for (let year = 0; year < totalYears; year++) {
+            const currentYear = startYear + year;
+            savingsTableText += `${currentYear} (${year + 1}°)<br>`;
+        }
+        savingsTableText += '<br>';
+        for (let month = 0; month < 12; month++) {
+            savingsTableText += `${monthNames[month]}<br>`;
+            for (let year = 0; year < totalYears; year++) {
+                const currentYear = startYear + year;
+                const monthIndex = (currentYear - startYear) * 12 + month - startMonth;
+                if (monthIndex >= 0 && monthIndex < months) {
+                    savingsTableText += `${formatNumber(window.savingsList[monthIndex])}<br>`;
+                } else {
+                    savingsTableText += '-<br>';
+                }
+            }
+            savingsTableText += '<br>';
+        }
+
         let resultsHTML = `
             <h2>Risultati</h2>
             <p><strong>Dati Inseriti:</strong><br>
@@ -151,8 +181,10 @@ function calculateProfits() {
                 Anni: ${years}<br>
                 Saldo Iniziale: ${formatNumber(initialBalance)} €<br>
                 Mesi per Rinnovo: ${renewalMonths}<br>
-                Risparmio Mensile: ${monthlySavingsInput}<br>
-                Tasso Lordo Annuale: ${formatNumber(annualRate * 100)} %</p>
+                Risparmio Mensile Iniziale: ${monthlySavingsInput}<br>
+                Tasso Lordo Annuale Standard: ${formatNumber(annualRate * 100)} %<br>
+                Tasso Lordo Annuale Premium: ${formatNumber((annualRate + premiumIncrement) * 100)} %<br>
+                ${savingsTableText}</p>
             <p><strong>Tutto Standard:</strong><br>Saldo Finale: ${formatNumber(allStandard.finalBalance)} €<br>Guadagno: ${formatNumber(allStandard.finalGain)} €</p>
             <p><strong>Tutto Premium:</strong><br>Saldo Finale: ${formatNumber(allPremium.finalBalance)} €<br>Guadagno: ${formatNumber(allPremium.finalGain)} €<br>Costo Premium: ${formatNumber(allPremium.totalPremiumCost)} €</p>
             <h3>Top 10 Combinazioni</h3>
