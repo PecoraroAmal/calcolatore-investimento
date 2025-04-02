@@ -53,7 +53,7 @@ function generateTable() {
             const currentYear = startYear + year;
             const monthIndex = (currentYear - startYear) * 12 + month - startMonth;
             if (monthIndex >= 0 && monthIndex < months) {
-                tableHTML += `<td><input type="number" value="${savingsList[monthIndex]}" step="0.01" onchange="updateSavings(${monthIndex}, this.value)"></td>`;
+                tableHTML += `<td><input type="number" value="${savingsList[monthIndex]}" step="10" onchange="updateSavings(${monthIndex}, this.value)"></td>`;
             } else {
                 tableHTML += '<td>-</td>';
             }
