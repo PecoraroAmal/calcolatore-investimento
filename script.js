@@ -1,3 +1,73 @@
+function formatNumber(num) {
+    return num.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+document.getElementById('calcForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    generateTable();
+});
+
+function generateTable() {
+    const years = parseInt(document.getElementById('calcYears').value);
+    const renewalMonths = parseInt(document.getElementById('calcRenewalMonths').value);
+    const monthlySavingsInput = document.getElementById('calcMonthlySavings').value.split(',').map(s => parseFloat(s.trim()));
+    const months = years * 12;
+    const startDate = new Date(document.getElementById('calcStartDate').value);
+    const startMonth = startDate.getMonth();
+    const startYear = startDate.getFullYear();
+
+    if (monthlySavingsInput.length !== 1 && monthlySavingsInput.length !== renewalMonths) {
+        alert('Il numero di risparmi mensili deve essere un solo numero oppure uguale al numero di mesi per rinnovo.');
+        return;
+    }
+
+    let savingsList = new Array(months).fill(0);
+    let cycleIndex = 0;
+    for (let i = 0; i < months; i++) {
+        const currentMonth = (startMonth + i) % 12;
+        const currentYear = startYear + Math.floor((startMonth + i) / 12);
+        const monthIndex = currentYear * 12 + currentMonth - startYear * 12;
+        if (monthIndex >= i) {
+            savingsList[i] = monthlySavingsInput[cycleIndex % monthlySavingsInput.length];
+            cycleIndex++;
+        }
+    }
+
+    let tableHTML = '<table><tr><th>Mese</th>';
+    for (let year = 0; year < years; year++) {
+        tableHTML += `<th>${startYear + year} (${year + 1}°)</th>`;
+    }
+    tableHTML += '</tr>';
+
+    const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 
+                       'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+    for (let month = 0; month < 12; month++) {
+        tableHTML += `<tr><td>${monthNames[month]}</td>`;
+        for (let year = 0; year < years; year++) {
+            const index = year * 12 + month;
+            if (index < months) {
+                if (year === 0 && month < startMonth) {
+                    tableHTML += '<td>-</td>';
+                } else {
+                    tableHTML += `<td><input type="number" value="${savingsList[index]}" step="0.01" onchange="updateSavings(${index}, this.value)"></td>`;
+                }
+            } else {
+                tableHTML += '<td>-</td>';
+            }
+        }
+        tableHTML += '</tr>';
+    }
+    tableHTML += '</table>';
+
+    document.getElementById('savingsTableContainer').innerHTML = tableHTML;
+    document.getElementById('generateProfitsBtn').style.display = 'block';
+    window.savingsList = savingsList;
+}
+
+function updateSavings(index, value) {
+    window.savingsList[index] = parseFloat(value);
+}
+
 function calculateProfits() {
     document.getElementById('loading').style.display = 'block';
     setTimeout(() => {
@@ -8,8 +78,7 @@ function calculateProfits() {
         const periodsPerYear = 12 / renewalMonths;
         const totalPeriods = Math.floor((years * 12) / renewalMonths);
         const standardRate = annualRate / periodsPerYear;
-        // Modifica: incremento del tasso Premium in base a renewalMonths
-        const premiumIncrement = renewalMonths === 6 ? 0.005 : 0.002; // 0,5% se 6 mesi, altrimenti 0,2%
+        const premiumIncrement = renewalMonths === 6 ? 0.005 : 0.002;
         const premiumRate = (annualRate + premiumIncrement) / periodsPerYear;
         const premiumCost = 49.99;
         const startDate = new Date(document.getElementById('calcStartDate').value);
@@ -80,8 +149,7 @@ function calculateProfits() {
                 Saldo Iniziale: ${formatNumber(initialBalance)} €<br>
                 Mesi per Rinnovo: ${renewalMonths}<br>
                 Risparmio Mensile: ${monthlySavingsInput}<br>
-                Tasso Lordo Annuale: ${formatNumber(annualRate * 100)} %<br>
-                Incremento Premium: ${formatNumber(premiumIncrement * 100)} %</p>
+                Tasso Lordo Annuale: ${formatNumber(annualRate * 100)} %</p>
             <p><strong>Tutto Standard:</strong><br>Saldo Finale: ${formatNumber(allStandard.finalBalance)} €<br>Guadagno: ${formatNumber(allStandard.finalGain)} €</p>
             <p><strong>Tutto Premium:</strong><br>Saldo Finale: ${formatNumber(allPremium.finalBalance)} €<br>Guadagno: ${formatNumber(allPremium.finalGain)} €<br>Costo Premium: ${formatNumber(allPremium.totalPremiumCost)} €</p>
             <h3>Top 10 Combinazioni</h3>
@@ -98,4 +166,90 @@ function calculateProfits() {
         document.getElementById('exportButtons').style.display = 'flex';
         document.getElementById('loading').style.display = 'none';
     }, 100);
+}
+
+function exportSavings() {
+    const years = parseInt(document.getElementById('calcYears').value);
+    const months = years * 12;
+    const startDate = new Date(document.getElementById('calcStartDate').value);
+    const startMonth = startDate.getMonth();
+    const startYear = startDate.getFullYear();
+    const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 
+                       'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+
+    let text = 'Mese\t';
+    for (let year = 0; year < years; year++) {
+        text += `${startYear + year} (${year + 1}°) \t`;
+    }
+    text += '\n';
+
+    for (let month = 0; month < 12; month++) {
+        text += `${monthNames[month]}\t`;
+        for (let year = 0; year < years; year++) {
+            const index = year * 12 + month;
+            if (index < months) {
+                if (year === 0 && month < startMonth) {
+                    text += '-\t';
+                } else {
+                    text += `${formatNumber(window.savingsList[index])}\t`;
+                }
+            } else {
+                text += '-\t';
+            }
+        }
+        text += '\n';
+    }
+
+    download('tabella_risparmi.txt', text);
+}
+
+function exportResults() {
+    const results = document.getElementById('resultsContainer').innerText;
+    download('tabella_profitti.txt', results);
+}
+
+function exportAll() {
+    const years = parseInt(document.getElementById('calcYears').value);
+    const months = years * 12;
+    const startDate = new Date(document.getElementById('calcStartDate').value);
+    const startMonth = startDate.getMonth();
+    const startYear = startDate.getFullYear();
+    const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 
+                       'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+
+    let savingsText = 'Tabella Risparmi\nMese\t';
+    for (let year = 0; year < years; year++) {
+        savingsText += `Anno ${year + 1} (${startYear + year})\t`;
+    }
+    savingsText += '\n';
+
+    for (let month = 0; month < 12; month++) {
+        savingsText += `${monthNames[month]}\t`;
+        for (let year = 0; year < years; year++) {
+            const index = year * 12 + month;
+            if (index < months) {
+                if (year === 0 && month < startMonth) {
+                    savingsText += '-\t';
+                } else {
+                    savingsText += `${formatNumber(window.savingsList[index])}\t`;
+                }
+            } else {
+                savingsText += '-\t';
+            }
+        }
+        savingsText += '\n';
+    }
+
+    const resultsText = document.getElementById('resultsContainer').innerText;
+    download('profitti_e_risparmi.txt', `${savingsText}\n\nRisultati:\n${resultsText}`);
+}
+
+function download(filename, text) {
+    const element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
 }
