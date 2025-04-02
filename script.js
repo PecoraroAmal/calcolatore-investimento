@@ -11,46 +11,49 @@ function generateTable() {
     const years = parseInt(document.getElementById('calcYears').value);
     const renewalMonths = parseInt(document.getElementById('calcRenewalMonths').value);
     const monthlySavingsInput = document.getElementById('calcMonthlySavings').value.split(',').map(s => parseFloat(s.trim()));
-    const months = years * 12;
+    const months = years * 12; // Totale mesi (es. 24 per 2 anni)
     const startDate = new Date(document.getElementById('calcStartDate').value);
-    const startMonth = startDate.getMonth();
-    const startYear = startDate.getFullYear();
+    const startMonth = startDate.getMonth(); // Mese iniziale (0-11)
+    const startYear = startDate.getFullYear(); // Anno iniziale
 
     if (monthlySavingsInput.length !== 1 && monthlySavingsInput.length !== renewalMonths) {
         alert('Il numero di risparmi mensili deve essere un solo numero oppure uguale al numero di mesi per rinnovo.');
         return;
     }
 
+    // Popola savingsList con i risparmi mensili
     let savingsList = new Array(months).fill(0);
     let cycleIndex = 0;
     for (let i = 0; i < months; i++) {
-        const currentMonth = (startMonth + i) % 12;
-        const currentYear = startYear + Math.floor((startMonth + i) / 12);
-        const monthIndex = currentYear * 12 + currentMonth - startYear * 12;
-        if (monthIndex >= i) {
-            savingsList[i] = monthlySavingsInput[cycleIndex % monthlySavingsInput.length];
-            cycleIndex++;
-        }
+        savingsList[i] = monthlySavingsInput[cycleIndex % monthlySavingsInput.length];
+        cycleIndex++;
     }
 
+    // Calcola la data di fine
+    const endDate = new Date(startDate);
+    endDate.setMonth(endDate.getMonth() + months); // Aggiunge il numero totale di mesi
+    const endYear = endDate.getFullYear();
+    const totalYears = endYear - startYear + 1; // Numero di anni coperti (parziali o completi)
+
+    // Genera l'intestazione della tabella con gli anni effettivi
     let tableHTML = '<table><tr><th>Mese</th>';
-    for (let year = 0; year < years; year++) {
-        tableHTML += `<th>${startYear + year} (${year + 1}°)</th>`;
+    for (let year = 0; year < totalYears; year++) {
+        const currentYear = startYear + year;
+        tableHTML += `<th>${currentYear} (${year + 1}°)</th>`;
     }
     tableHTML += '</tr>';
 
     const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 
                        'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+
+    // Genera le righe della tabella per i 12 mesi
     for (let month = 0; month < 12; month++) {
         tableHTML += `<tr><td>${monthNames[month]}</td>`;
-        for (let year = 0; year < years; year++) {
-            const index = year * 12 + month;
-            if (index < months) {
-                if (year === 0 && month < startMonth) {
-                    tableHTML += '<td>-</td>';
-                } else {
-                    tableHTML += `<td><input type="number" value="${savingsList[index]}" step="0.01" onchange="updateSavings(${index}, this.value)"></td>`;
-                }
+        for (let year = 0; year < totalYears; year++) {
+            const currentYear = startYear + year;
+            const monthIndex = (currentYear - startYear) * 12 + month - startMonth;
+            if (monthIndex >= 0 && monthIndex < months) {
+                tableHTML += `<td><input type="number" value="${savingsList[monthIndex]}" step="0.01" onchange="updateSavings(${monthIndex}, this.value)"></td>`;
             } else {
                 tableHTML += '<td>-</td>';
             }
