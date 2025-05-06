@@ -1,7 +1,7 @@
 # Calcolatore di Investimento
 
 ## Link all'Applicazione Web
-[\[ApplicaioneWeb]](https://pecoraroamal.github.io/calcolatore-investimento/)
+https://pecoraroamal.github.io/calcolatore-investimento/
 
 ## Descrizione
 Questa applicazione web permette di simulare e confrontare strategie di investimento basate su due opzioni: **Standard** e **Premium**. Gli utenti possono calcolare i rendimenti futuri di un investimento personalizzando:
